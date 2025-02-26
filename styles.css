@@ -1,0 +1,58 @@
+:root {
+    --bg-color: #1a1a1a;
+    --text-color: #ffffff;
+    --card-bg: #2d2d2d;
+    --card-hover: #3d3d3d;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.profiles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.profile-card {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s, background-color 0.2s;
+}
+
+.profile-card:hover {
+    transform: translateY(-5px);
+    background-color: var(--card-hover);
+}
+
+.profile-card img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.profile-info {
+    padding: 15px;
+}
+
+.profile-info p {
+    margin: 0;
+    font-size: 14px;
+}
