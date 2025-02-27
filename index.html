@@ -4,42 +4,242 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Spawn Profiles Documentation</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --card-bg: #2d2d2d;
+            --card-hover: #3d3d3d;
+            --tab-active: #4a4a4a;
+            --tab-inactive: #2d2d2d;
+            --accent-color: #007bff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Tabs Navigation */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #444;
+        }
+
+        .tab-button {
+            background-color: var(--tab-inactive);
+            color: var(--text-color);
+            border: none;
+            padding: 12px 24px;
+            margin: 0 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            transition: background-color 0.3s;
+        }
+
+        .tab-button:hover {
+            background-color: var(--tab-active);
+        }
+
+        .tab-button.active {
+            background-color: var(--tab-active);
+            border-bottom: 3px solid var(--accent-color);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Profiles Grid */
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+
+        .profile-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s, background-color 0.2s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+            background-color: var(--card-hover);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .profile-info {
+            padding: 15px;
+        }
+
+        .profile-info p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        /* Tab Description */
+        .tab-description {
+            background-color: var(--card-bg);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            line-height: 1.5;
+        }
+
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 18px;
+            color: #888;
+        }
+
+        .loading::after {
+            content: "...";
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: "."; }
+            40% { content: ".."; }
+            60%, 100% { content: "..."; }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Spawn Profiles</h1>
-        <div id="profiles-grid" class="profiles-grid">
+        <h1>Spawn Profiles Documentation</h1>
+        
+        <!-- Tabs Navigation -->
+        <div class="tabs">
+            <button class="tab-button active" data-tab="characters">Personnages</button>
+            <button class="tab-button" data-tab="weapons">Armes</button>
+            <button class="tab-button" data-tab="vehicles">Véhicules</button>
+        </div>
+        
+        <!-- Characters Tab -->
+        <div id="characters" class="tab-content active">
+            <div class="tab-description">
+                Cette section présente tous les personnages disponibles pour le spawn. Chaque carte affiche l'image du personnage et son identifiant unique.
+            </div>
+            <div id="characters-grid" class="profiles-grid">
+                <div class="loading">Chargement des personnages</div>
+            </div>
+        </div>
+        
+        <!-- Weapons Tab -->
+        <div id="weapons" class="tab-content">
+            <div class="tab-description">
+                Cette section présente toutes les armes disponibles pour le spawn. Chaque carte affiche l'image de l'arme et son identifiant unique.
+            </div>
+            <div id="weapons-grid" class="profiles-grid">
+                <div class="loading">Chargement des armes</div>
+            </div>
+        </div>
+        
+        <!-- Vehicles Tab -->
+        <div id="vehicles" class="tab-content">
+            <div class="tab-description">
+                Cette section présente tous les véhicules disponibles pour le spawn. Chaque carte affiche l'image du véhicule et son identifiant unique.
+            </div>
+            <div id="vehicles-grid" class="profiles-grid">
+                <div class="loading">Chargement des véhicules</div>
+            </div>
         </div>
     </div>
 
     <script>
-        async function loadSpawnProfiles() {
-            const profilesGrid = document.getElementById('profiles-grid');
+        // Tab switching functionality
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Add active class to clicked tab
+                button.classList.add('active');
+                const tabId = button.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+                
+                // Load content if not already loaded
+                if (!document.getElementById(`${tabId}-grid`).querySelector('.profile-card')) {
+                    loadProfilesForTab(tabId);
+                }
+            });
+        });
+
+        // Load profiles for a specific tab
+        async function loadProfilesForTab(tabType) {
+            const profilesGrid = document.getElementById(`${tabType}-grid`);
             
             try {
-                const response = await fetch('profiles.json');
-                const spawnProfiles = await response.json();
+                // Load the appropriate JSON file based on tab type
+                const response = await fetch(`${tabType}.json`);
+                const profiles = await response.json();
                 
-                spawnProfiles.forEach(profile => {
+                // Clear loading message
+                profilesGrid.innerHTML = '';
+                
+                // Create profile cards
+                profiles.forEach(profile => {
                     const profileCard = document.createElement('div');
                     profileCard.className = 'profile-card';
                     
                     profileCard.innerHTML = `
-                        <img src="images/${profile.filename}" alt="Spawn Profile ${profile.id}">
+                        <img src="images/${tabType}/${profile.filename}" alt="${tabType} ${profile.id}">
                         <div class="profile-info">
                             <p>ID: ${profile.id}</p>
+                            ${profile.name ? `<p>Nom: ${profile.name}</p>` : ''}
                         </div>
                     `;
                     
                     profilesGrid.appendChild(profileCard);
                 });
             } catch (error) {
-                console.error('Error loading profiles:', error);
+                console.error(`Error loading ${tabType}:`, error);
+                profilesGrid.innerHTML = `<p>Erreur lors du chargement des ${tabType}. Vérifiez que le fichier ${tabType}.json existe.</p>`;
             }
         }
 
-        window.addEventListener('load', loadSpawnProfiles);
+        // Initial load for characters tab
+        window.addEventListener('load', () => {
+            loadProfilesForTab('characters');
+        });
     </script>
 </body>
 </html>
